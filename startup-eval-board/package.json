@@ -1,0 +1,29 @@
+{
+  "name": "startup-eval-board",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "homepage": "https://MohitGoel109.github.io/Mini-Project-Assessment-Bootcamp-26",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.12.7",
+    "lucide-react": "^0.383.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.9.0",
+    "gh-pages": "^6.1.1",
+    "vite": "^5.4.1"
+  }
+}
