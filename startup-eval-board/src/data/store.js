@@ -1,12 +1,51 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { DEFAULT_CRITERIA, SAMPLE_IDEAS } from './initial.js';
 
 let idCounter = 100;
 const uid = () => String(++idCounter);
 
+function bumpCounterPastExisting(items) {
+  items.forEach(item => {
+    const n = Number(item.id);
+    if (!Number.isNaN(n) && n > idCounter) idCounter = n;
+  });
+}
+
+const IDEAS_KEY = 'omnitrix-eval-board:ideas';
+const CRITERIA_KEY = 'omnitrix-eval-board:criteria';
+
+function loadFromStorage(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export function useStore() {
-  const [ideas, setIdeas] = useState(SAMPLE_IDEAS);
-  const [criteria, setCriteria] = useState(DEFAULT_CRITERIA);
+  const [ideas, setIdeas] = useState(() => {
+    const loaded = loadFromStorage(IDEAS_KEY, SAMPLE_IDEAS);
+    bumpCounterPastExisting(loaded);
+    return loaded;
+  });
+  const [criteria, setCriteria] = useState(() => {
+    const loaded = loadFromStorage(CRITERIA_KEY, DEFAULT_CRITERIA);
+    bumpCounterPastExisting(loaded);
+    return loaded;
+  });
+
+  // Persist to localStorage whenever either collection changes, so ideas
+  // survive a closed tab, refresh, or browser restart.
+  useEffect(() => {
+    try { localStorage.setItem(IDEAS_KEY, JSON.stringify(ideas)); } catch { /* storage full/unavailable */ }
+  }, [ideas]);
+
+  useEffect(() => {
+    try { localStorage.setItem(CRITERIA_KEY, JSON.stringify(criteria)); } catch { /* storage full/unavailable */ }
+  }, [criteria]);
 
   const addIdea = useCallback((idea) => {
     const defaultScores = {};
@@ -54,7 +93,17 @@ export function useStore() {
     return Math.round(weighted * 10) / 10;
   }, [criteria]);
 
+  const resetToSamples = useCallback(() => {
+    idCounter = 100;
+    setIdeas(SAMPLE_IDEAS);
+    setCriteria(DEFAULT_CRITERIA);
+    try {
+      localStorage.removeItem(IDEAS_KEY);
+      localStorage.removeItem(CRITERIA_KEY);
+    } catch { /* storage unavailable */ }
+  }, []);
+
   const rankedIdeas = [...ideas].sort((a, b) => getOverallScore(b) - getOverallScore(a));
 
-  return { ideas, criteria, rankedIdeas, addIdea, updateIdea, deleteIdea, addCriterion, updateCriterion, deleteCriterion, getOverallScore };
+  return { ideas, criteria, rankedIdeas, addIdea, updateIdea, deleteIdea, addCriterion, updateCriterion, deleteCriterion, getOverallScore, resetToSamples };
 }
