@@ -1,14 +1,13 @@
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer,
          BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import ScoreBar from './ScoreBar.jsx';
+import { useThemeColors } from '../hooks/useThemeColors.js';
 
-const COLORS = ['#00ff41', '#00c832', '#007a1f', '#00ffe7', '#ffae00'];
-
-function CustomTooltip({ active, payload, label }) {
+function CustomTooltip({ active, payload, label, colors }) {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#0d1a0d', border: '1px solid #007a1f', borderRadius: 6, padding: '8px 12px' }}>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', color: 'var(--omni-green)', marginBottom: 4 }}>{label}</div>
+    <div style={{ background: colors.bgPanel, border: `1px solid ${colors.accentDark}`, borderRadius: 6, padding: '8px 12px' }}>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', color: colors.accent, marginBottom: 4 }}>{label}</div>
       {payload.map((p, i) => (
         <div key={i} style={{ fontSize: '0.82rem', color: p.color }}>{p.name}: <b>{p.value}</b></div>
       ))}
@@ -17,6 +16,7 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function Dashboard({ ideas, rankedIdeas, criteria, getOverallScore }) {
+  const colors = useThemeColors();
   const topIdea = rankedIdeas[0];
 
   // Bar chart data
@@ -79,11 +79,11 @@ export default function Dashboard({ ideas, rankedIdeas, criteria, getOverallScor
             ? <div className="empty-state"><div className="empty-title">No ideas yet</div></div>
             : <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={barData} margin={{ top: 4, right: 10, bottom: 4, left: -10 }}>
-                  <XAxis dataKey="name" tick={{ fill: '#7aab7a', fontSize: 11, fontFamily: 'Rajdhani' }} />
-                  <YAxis domain={[0, 10]} tick={{ fill: '#7aab7a', fontSize: 11 }} />
-                  <Tooltip content={<CustomTooltip />} />
+                  <XAxis dataKey="name" tick={{ fill: colors.textDim, fontSize: 11, fontFamily: 'Rajdhani' }} />
+                  <YAxis domain={[0, 10]} tick={{ fill: colors.textDim, fontSize: 11 }} />
+                  <Tooltip content={<CustomTooltip colors={colors} />} />
                   <Bar dataKey="score" radius={[4, 4, 0, 0]}>
-                    {barData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    {barData.map((_, i) => <Cell key={i} fill={colors.series[i % colors.series.length]} />)}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -97,10 +97,10 @@ export default function Dashboard({ ideas, rankedIdeas, criteria, getOverallScor
             ? <div className="empty-state"><div className="empty-title">No data</div></div>
             : <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={catData} layout="vertical" margin={{ top: 4, right: 20, bottom: 4, left: 20 }}>
-                  <XAxis type="number" domain={[0, 10]} tick={{ fill: '#7aab7a', fontSize: 11 }} />
-                  <YAxis type="category" dataKey="name" tick={{ fill: '#7aab7a', fontSize: 11, fontFamily: 'Rajdhani' }} width={70} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="avg" radius={[0, 4, 4, 0]} fill="#00c832" />
+                  <XAxis type="number" domain={[0, 10]} tick={{ fill: colors.textDim, fontSize: 11 }} />
+                  <YAxis type="category" dataKey="name" tick={{ fill: colors.textDim, fontSize: 11, fontFamily: 'Rajdhani' }} width={70} />
+                  <Tooltip content={<CustomTooltip colors={colors} />} />
+                  <Bar dataKey="avg" radius={[0, 4, 4, 0]} fill={colors.accentDim} />
                 </BarChart>
               </ResponsiveContainer>
           }
@@ -115,11 +115,11 @@ export default function Dashboard({ ideas, rankedIdeas, criteria, getOverallScor
             ? <div className="empty-state"><div className="empty-title">No ideas yet</div></div>
             : <ResponsiveContainer width="100%" height={240}>
                 <RadarChart data={radarData}>
-                  <PolarGrid stroke="#1e2e1e" />
-                  <PolarAngleAxis dataKey="criterion" tick={{ fill: '#7aab7a', fontSize: 11, fontFamily: 'Rajdhani' }} />
+                  <PolarGrid stroke={colors.border} />
+                  <PolarAngleAxis dataKey="criterion" tick={{ fill: colors.textDim, fontSize: 11, fontFamily: 'Rajdhani' }} />
                   {rankedIdeas.slice(0, 3).map((idea, i) => (
                     <Radar key={idea.id} name={idea.name} dataKey={idea.name.slice(0, 10)}
-                      stroke={COLORS[i]} fill={COLORS[i]} fillOpacity={0.15} />
+                      stroke={colors.series[i]} fill={colors.series[i]} fillOpacity={0.15} />
                   ))}
                 </RadarChart>
               </ResponsiveContainer>

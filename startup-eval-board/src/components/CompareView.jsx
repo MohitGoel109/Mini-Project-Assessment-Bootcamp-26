@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { Scale } from 'lucide-react';
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, Legend } from 'recharts';
 import SwotPanel from './SwotPanel.jsx';
 import ScoreCircle from './ScoreCircle.jsx';
-
-const COLORS = ['#00ff41', '#00ffe7', '#ffae00', '#ff3f3f'];
+import { useThemeColors } from '../hooks/useThemeColors.js';
 
 export default function CompareView({ ideas, criteria, getOverallScore }) {
+  const { series: COLORS, border } = useThemeColors();
   const [selected, setSelected] = useState(ideas.slice(0, 2).map(i => i.id));
 
   const toggle = (id) => {
@@ -44,7 +45,7 @@ export default function CompareView({ ideas, criteria, getOverallScore }) {
 
       {compareIdeas.length < 2 && (
         <div className="empty-state">
-          <div style={{ fontSize: 48, marginBottom: 14 }}>⚖️</div>
+          <div style={{ marginBottom: 14 }}><Scale size={44} style={{ opacity: 0.3 }} /></div>
           <div className="empty-title">Select at least 2 ideas</div>
         </div>
       )}
@@ -71,7 +72,7 @@ export default function CompareView({ ideas, criteria, getOverallScore }) {
             <div className="card-title">Criteria Radar Comparison</div>
             <ResponsiveContainer width="100%" height={280}>
               <RadarChart data={radarData}>
-                <PolarGrid stroke="#1e2e1e" />
+                <PolarGrid stroke={border} />
                 <PolarAngleAxis dataKey="criterion" tick={{ fill: '#7aab7a', fontSize: 11, fontFamily: 'Rajdhani' }} />
                 <Legend wrapperStyle={{ fontFamily: 'Rajdhani', fontSize: 12 }} />
                 {compareIdeas.map((idea, i) => (

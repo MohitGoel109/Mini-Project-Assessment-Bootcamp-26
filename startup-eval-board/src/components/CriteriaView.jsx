@@ -1,6 +1,10 @@
 import { useState } from 'react';
+import { Trash2, Check, Plus } from 'lucide-react';
+import { useThemeColors } from '../hooks/useThemeColors.js';
 
 export default function CriteriaView({ criteria, addCriterion, updateCriterion, deleteCriterion }) {
+  const colors = useThemeColors();
+  const hues = [colors.accent, colors.accentSecondary, '#ffae00', '#ff3f3f', '#a855f7', colors.accentDim];
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({ name: '', weight: 20 });
   const totalWeight = criteria.reduce((s, c) => s + c.weight, 0);
@@ -47,7 +51,7 @@ export default function CriteriaView({ criteria, addCriterion, updateCriterion, 
                 />
                 <span style={{ color: 'var(--omni-text-dim)', fontSize: '0.8rem' }}>%</span>
               </div>
-              <button className="btn btn-danger btn-sm" onClick={() => deleteCriterion(c.id)}>🗑</button>
+              <button className="btn btn-danger btn-sm" onClick={() => deleteCriterion(c.id)}><Trash2 size={13} /></button>
             </div>
           ))}
         </div>
@@ -69,7 +73,7 @@ export default function CriteriaView({ criteria, addCriterion, updateCriterion, 
             <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
               <button className="btn btn-primary btn-sm" disabled={!form.name.trim()}
                 onClick={() => { addCriterion(form); setForm({ name: '', weight: 20 }); setAdding(false); }}>
-                ✓ Add
+                <Check size={13} /> Add
               </button>
               <button className="btn btn-ghost btn-sm" onClick={() => setAdding(false)}>Cancel</button>
             </div>
@@ -78,7 +82,7 @@ export default function CriteriaView({ criteria, addCriterion, updateCriterion, 
 
         {!adding && (
           <button className="btn btn-ghost" style={{ marginTop: 14 }} onClick={() => setAdding(true)}>
-            + Add Criterion
+            <Plus size={14} /> Add Criterion
           </button>
         )}
       </div>
@@ -87,7 +91,6 @@ export default function CriteriaView({ criteria, addCriterion, updateCriterion, 
         <div className="card-title">Weight Distribution</div>
         <div style={{ display: 'flex', height: 24, borderRadius: 6, overflow: 'hidden', gap: 2 }}>
           {criteria.map((c, i) => {
-            const hues = ['#00ff41', '#00ffe7', '#ffae00', '#ff3f3f', '#a855f7', '#3b82f6'];
             return (
               <div key={c.id} style={{
                 flex: c.weight,
@@ -104,7 +107,6 @@ export default function CriteriaView({ criteria, addCriterion, updateCriterion, 
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
           {criteria.map((c, i) => {
-            const hues = ['#00ff41', '#00ffe7', '#ffae00', '#ff3f3f', '#a855f7', '#3b82f6'];
             return (
               <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.78rem', color: 'var(--omni-text-dim)' }}>
                 <span style={{ width: 10, height: 10, borderRadius: 2, background: hues[i % hues.length], display: 'inline-block' }} />
