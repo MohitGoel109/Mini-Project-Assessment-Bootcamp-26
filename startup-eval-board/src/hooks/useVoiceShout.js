@@ -14,9 +14,6 @@ export function useVoiceShout() {
     if (voiceRef.current) return voiceRef.current;
     if (typeof window === 'undefined' || !window.speechSynthesis) return null;
     const voices = window.speechSynthesis.getVoices();
-    // Prefer a deeper/male-leaning English voice if available, to read more
-    // like an announcer shout than a flat narrator; falls back to whatever
-    // the browser offers first.
     const preferred = voices.find(v => /male|david|fred|google us english/i.test(v.name) && /en/i.test(v.lang))
       || voices.find(v => /en/i.test(v.lang))
       || voices[0]
@@ -33,8 +30,6 @@ export function useVoiceShout() {
     return audioCtxRef.current;
   }, []);
 
-  // A short synthesized sub-bass "boom" swell that plays under the shout —
-  // gives the announcement physical weight that flat TTS alone can't provide.
   const playBoom = useCallback(() => {
     const ctx = ensureAudioCtx();
     if (!ctx) return;
@@ -69,17 +64,11 @@ export function useVoiceShout() {
   const shout = useCallback((name) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
     try {
-      window.speechSynthesis.cancel(); // interrupt any prior shout
+      window.speechSynthesis.cancel();
       playBoom();
 
       const upper = name.toUpperCase();
-      // Main shout: fast, high-pitched, max volume, exclamation mark pushes
-      // most TTS engines toward more emphatic/excited prosody.
       speakOnce(`${upper}!`, { pitch: 1.55, rate: 1.18, volume: 1 });
-
-      // Two fading "echo" repeats layered slightly after the main shout,
-      // quieter and a touch slower each time — simulates a reverb tail since
-      // the Web Speech API has no built-in echo/reverb effect.
       setTimeout(() => speakOnce(upper, { pitch: 1.45, rate: 1.05, volume: 0.35 }), 260);
       setTimeout(() => speakOnce(upper, { pitch: 1.35, rate: 0.95, volume: 0.15 }), 520);
     } catch {

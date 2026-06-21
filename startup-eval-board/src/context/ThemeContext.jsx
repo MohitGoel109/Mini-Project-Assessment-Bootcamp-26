@@ -28,9 +28,9 @@ export function ThemeProvider({ children }) {
     setTimeout(() => applyTheme(next), 480);
     setTimeout(() => setThemeKey(key), 480);
 
-    // Shout the alien's name right as the flash peaks (matches the
-    // .transform-flash CSS animation-delay of 0.5s) — feels like the
-    // character announcing its own transformation.
+    // Shout the alien's name (TTS, punched up with pitch/rate/echo) right as
+    // the flash peaks (matches the .transform-flash CSS animation-delay of
+    // 0.5s) — feels like the character announcing its own transformation.
     setTimeout(() => shout(next.name), 500);
 
     // Clear overlay after animation completes
