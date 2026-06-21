@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import { ALIENS, getTheme, isUltimateKey, alienIdFromKey } from '../data/themes.js';
+import { useVoiceShout } from '../hooks/useVoiceShout.js';
 
 const ThemeContext = createContext(null);
 
@@ -14,6 +15,7 @@ export function ThemeProvider({ children }) {
   // themeKey is either "alienId" (base form) or "alienId:ultimate" (evolved form)
   const [themeKey, setThemeKey] = useState('ben10');
   const [transforming, setTransforming] = useState(null); // theme object mid-transformation
+  const shout = useVoiceShout();
 
   const theme = getTheme(themeKey);
 
@@ -26,9 +28,14 @@ export function ThemeProvider({ children }) {
     setTimeout(() => applyTheme(next), 480);
     setTimeout(() => setThemeKey(key), 480);
 
+    // Shout the alien's name right as the flash peaks (matches the
+    // .transform-flash CSS animation-delay of 0.5s) — feels like the
+    // character announcing its own transformation.
+    setTimeout(() => shout(next.name), 500);
+
     // Clear overlay after animation completes
     setTimeout(() => setTransforming(null), 1450);
-  }, [themeKey]);
+  }, [themeKey, shout]);
 
   // Convenience: evolve the CURRENT alien to its Ultimate form (or back to base).
   const toggleUltimate = useCallback(() => {

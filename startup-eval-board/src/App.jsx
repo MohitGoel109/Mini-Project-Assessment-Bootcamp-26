@@ -9,6 +9,8 @@ import CompareView from './components/CompareView.jsx';
 import CriteriaView from './components/CriteriaView.jsx';
 import IdeaModal from './components/IdeaModal.jsx';
 import ThemePicker from './components/ThemePicker.jsx';
+import UltimateToggle from './components/UltimateToggle.jsx';
+import MusicToggle from './components/MusicToggle.jsx';
 import TransformOverlay from './components/TransformOverlay.jsx';
 
 const TABS = [
@@ -76,6 +78,8 @@ export default function App() {
           ))}
         </nav>
         <ThemePicker />
+        <UltimateToggle />
+        <MusicToggle />
       </header>
 
       {/* Main */}
