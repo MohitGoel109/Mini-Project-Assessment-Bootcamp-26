@@ -12,6 +12,7 @@ import ThemePicker from './components/ThemePicker.jsx';
 import UltimateToggle from './components/UltimateToggle.jsx';
 import MusicToggle from './components/MusicToggle.jsx';
 import TransformOverlay from './components/TransformOverlay.jsx';
+import { useClickSound } from './hooks/useClickSound.js';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -25,8 +26,9 @@ export default function App() {
   const store = useStore();
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [modal, setModal] = useState(null); // null | { mode: 'add' } | { mode: 'edit', idea }
+  const [modal, setModal] = useState(null);
   const [toast, setToast] = useState(null);
+  const playClick = useClickSound();
 
   const showToast = (msg) => {
     setToast(msg);
@@ -44,15 +46,20 @@ export default function App() {
   };
 
   const handleDelete = (id) => {
+    playClick('delete');
     store.deleteIdea(id);
     showToast('Idea removed');
+  };
+
+  const handleTabChange = (tabId) => {
+    playClick('tick');
+    setActiveTab(tabId);
   };
 
   return (
     <div className="app-shell">
       <TransformOverlay />
 
-      {/* Header */}
       <header className="header">
         <div className="omnitrix-logo">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -72,7 +79,7 @@ export default function App() {
         <nav className="header-nav">
           {TABS.map(t => (
             <button key={t.id} className={`nav-btn ${activeTab === t.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(t.id)}>
+              onClick={() => handleTabChange(t.id)}>
               {t.label}
             </button>
           ))}
@@ -82,58 +89,39 @@ export default function App() {
         <MusicToggle />
       </header>
 
-      {/* Main */}
       <main className="main-content">
         {activeTab === 'dashboard' && (
-          <Dashboard
-            ideas={store.ideas}
-            rankedIdeas={store.rankedIdeas}
-            criteria={store.criteria}
-            getOverallScore={store.getOverallScore}
-          />
+          <Dashboard ideas={store.ideas} rankedIdeas={store.rankedIdeas}
+            criteria={store.criteria} getOverallScore={store.getOverallScore} />
         )}
         {activeTab === 'ideas' && (
-          <IdeasView
-            ideas={store.ideas}
-            rankedIdeas={store.rankedIdeas}
-            criteria={store.criteria}
-            getOverallScore={store.getOverallScore}
+          <IdeasView ideas={store.ideas} rankedIdeas={store.rankedIdeas}
+            criteria={store.criteria} getOverallScore={store.getOverallScore}
             onAdd={() => setModal({ mode: 'add' })}
             onEdit={(idea) => setModal({ mode: 'edit', idea })}
-            onDelete={handleDelete}
-          />
+            onDelete={handleDelete} />
         )}
         {activeTab === 'ranking' && (
-          <RankingView
-            rankedIdeas={store.rankedIdeas}
-            criteria={store.criteria}
-            getOverallScore={store.getOverallScore}
-          />
+          <RankingView rankedIdeas={store.rankedIdeas}
+            criteria={store.criteria} getOverallScore={store.getOverallScore} />
         )}
         {activeTab === 'compare' && (
-          <CompareView
-            ideas={store.ideas}
-            criteria={store.criteria}
-            getOverallScore={store.getOverallScore}
-          />
+          <CompareView ideas={store.ideas}
+            criteria={store.criteria} getOverallScore={store.getOverallScore} />
         )}
         {activeTab === 'criteria' && (
-          <CriteriaView
-            criteria={store.criteria}
-            addCriterion={store.addCriterion}
-            updateCriterion={store.updateCriterion}
-            deleteCriterion={store.deleteCriterion}
-          />
+          <CriteriaView criteria={store.criteria}
+            addCriterion={store.addCriterion} updateCriterion={store.updateCriterion}
+            deleteCriterion={store.deleteCriterion} />
         )}
       </main>
 
-      {/* Mobile bottom nav (app view) */}
       <nav className="bottom-nav">
         {TABS.map(t => {
           const Icon = t.icon;
           return (
             <button key={t.id} className={`bottom-nav-btn ${activeTab === t.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(t.id)}>
+              onClick={() => handleTabChange(t.id)}>
               <Icon size={20} />
               <span>{t.label}</span>
             </button>
@@ -141,17 +129,12 @@ export default function App() {
         })}
       </nav>
 
-      {/* Modal */}
       {modal && (
-        <IdeaModal
-          idea={modal.mode === 'edit' ? modal.idea : null}
-          criteria={store.criteria}
-          onSave={handleSave}
-          onClose={() => setModal(null)}
-        />
+        <IdeaModal idea={modal.mode === 'edit' ? modal.idea : null}
+          criteria={store.criteria} onSave={handleSave}
+          onClose={() => setModal(null)} />
       )}
 
-      {/* Toast */}
       {toast && (
         <div className="toast">
           <Zap size={14} style={{ marginRight: 6, verticalAlign: -2 }} />

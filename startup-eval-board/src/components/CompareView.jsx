@@ -4,12 +4,15 @@ import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, Lege
 import SwotPanel from './SwotPanel.jsx';
 import ScoreCircle from './ScoreCircle.jsx';
 import { useThemeColors } from '../hooks/useThemeColors.js';
+import { useClickSound } from '../hooks/useClickSound.js';
 
 export default function CompareView({ ideas, criteria, getOverallScore }) {
   const { series: COLORS, border } = useThemeColors();
   const [selected, setSelected] = useState(ideas.slice(0, 2).map(i => i.id));
+  const playClick = useClickSound();
 
   const toggle = (id) => {
+    playClick('scan');
     if (selected.includes(id)) {
       if (selected.length > 1) setSelected(selected.filter(s => s !== id));
     } else {
@@ -18,7 +21,6 @@ export default function CompareView({ ideas, criteria, getOverallScore }) {
   };
 
   const compareIdeas = ideas.filter(i => selected.includes(i.id));
-
   const radarData = criteria.map(c => {
     const entry = { criterion: c.name };
     compareIdeas.forEach(idea => { entry[idea.name] = idea.scores[c.id] || 0; });
@@ -27,16 +29,12 @@ export default function CompareView({ ideas, criteria, getOverallScore }) {
 
   return (
     <div className="animate-in">
-      {/* Selector */}
       <div className="card" style={{ marginBottom: 20 }}>
         <div className="card-title">Select Ideas to Compare (up to 4)</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {ideas.map(idea => (
-            <button
-              key={idea.id}
-              className={`filter-chip ${selected.includes(idea.id) ? 'active' : ''}`}
-              onClick={() => toggle(idea.id)}
-            >
+            <button key={idea.id} className={`filter-chip ${selected.includes(idea.id) ? 'active' : ''}`}
+              onClick={() => toggle(idea.id)}>
               {idea.name}
             </button>
           ))}
@@ -52,7 +50,6 @@ export default function CompareView({ ideas, criteria, getOverallScore }) {
 
       {compareIdeas.length >= 2 && (
         <>
-          {/* Score header */}
           <div style={{ display: 'flex', gap: 14, marginBottom: 20, flexWrap: 'wrap' }}>
             {compareIdeas.map((idea, i) => (
               <div key={idea.id} className="card" style={{ flex: '1 1 180px', textAlign: 'center', borderColor: COLORS[i] + '55' }}>
@@ -67,7 +64,6 @@ export default function CompareView({ ideas, criteria, getOverallScore }) {
             ))}
           </div>
 
-          {/* Radar */}
           <div className="card" style={{ marginBottom: 20 }}>
             <div className="card-title">Criteria Radar Comparison</div>
             <ResponsiveContainer width="100%" height={280}>
@@ -83,7 +79,6 @@ export default function CompareView({ ideas, criteria, getOverallScore }) {
             </ResponsiveContainer>
           </div>
 
-          {/* Criteria table */}
           <div className="card" style={{ marginBottom: 20, overflowX: 'auto' }}>
             <div className="card-title">Criteria Score Table</div>
             <table className="compare-table">
@@ -122,7 +117,6 @@ export default function CompareView({ ideas, criteria, getOverallScore }) {
             </table>
           </div>
 
-          {/* SWOT side by side */}
           {compareIdeas.slice(0, 2).map((idea, i) => (
             <div key={idea.id} className="card" style={{ marginBottom: 14 }}>
               <div className="card-title" style={{ color: COLORS[i] }}>SWOT — {idea.name}</div>

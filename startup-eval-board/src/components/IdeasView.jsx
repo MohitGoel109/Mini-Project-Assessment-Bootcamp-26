@@ -3,6 +3,7 @@ import { ChevronUp, ChevronDown, Pencil, Trash2, Zap, Rocket, Trophy, Medal, Awa
 import ScoreCircle from './ScoreCircle.jsx';
 import ScoreBar from './ScoreBar.jsx';
 import SwotPanel from './SwotPanel.jsx';
+import { useClickSound } from '../hooks/useClickSound.js';
 
 function RankIcon({ rank, size = 14 }) {
   if (rank === 1) return <Trophy size={size} />;
@@ -13,6 +14,7 @@ function RankIcon({ rank, size = 14 }) {
 
 function IdeaCard({ idea, rank, criteria, score, onEdit, onDelete }) {
   const [expanded, setExpanded] = useState(false);
+  const playClick = useClickSound();
   const rankCls = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
 
   return (
@@ -29,7 +31,6 @@ function IdeaCard({ idea, rank, criteria, score, onEdit, onDelete }) {
         <ScoreCircle score={score} />
       </div>
 
-      {/* Criteria bars */}
       <div className="criteria-scores">
         {criteria.map(c => (
           <div key={c.id} className="criteria-row">
@@ -41,13 +42,13 @@ function IdeaCard({ idea, rank, criteria, score, onEdit, onDelete }) {
       </div>
 
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <button className="btn btn-ghost btn-sm" onClick={() => setExpanded(!expanded)}>
+        <button className="btn btn-ghost btn-sm" onClick={() => { playClick('tick'); setExpanded(!expanded); }}>
           {expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
           {expanded ? 'Hide SWOT' : 'Show SWOT'}
         </button>
         <div style={{ flex: 1 }} />
-        <button className="btn btn-ghost btn-sm" onClick={() => onEdit(idea)}><Pencil size={13} /> Edit</button>
-        <button className="btn btn-danger btn-sm" onClick={() => onDelete(idea.id)}><Trash2 size={13} /></button>
+        <button className="btn btn-ghost btn-sm" onClick={() => { playClick('tick'); onEdit(idea); }}><Pencil size={13} /> Edit</button>
+        <button className="btn btn-danger btn-sm" onClick={() => { playClick('delete'); onDelete(idea.id); }}><Trash2 size={13} /></button>
       </div>
 
       {expanded && (
@@ -64,6 +65,7 @@ function IdeaCard({ idea, rank, criteria, score, onEdit, onDelete }) {
 export default function IdeasView({ ideas, rankedIdeas, criteria, getOverallScore, onAdd, onEdit, onDelete }) {
   const [category, setCategory] = useState('All');
   const [search, setSearch] = useState('');
+  const playClick = useClickSound();
 
   const filtered = rankedIdeas
     .filter(i => category === 'All' || i.category === category)
@@ -74,20 +76,16 @@ export default function IdeasView({ ideas, rankedIdeas, criteria, getOverallScor
   return (
     <div className="animate-in">
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
-        <input
-          className="input"
-          style={{ maxWidth: 280, flex: '1 1 200px' }}
-          placeholder="Search ideas…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+        <input className="input" style={{ maxWidth: 280, flex: '1 1 200px' }} placeholder="Search ideas…"
+          value={search} onChange={e => setSearch(e.target.value)} />
         <div style={{ flex: 1 }} />
-        <button className="btn btn-primary" onClick={onAdd}><Zap size={14} /> Add Idea</button>
+        <button className="btn btn-primary" onClick={() => { playClick('confirm'); onAdd(); }}><Zap size={14} /> Add Idea</button>
       </div>
 
       <div className="filter-bar">
         {usedCategories.map(c => (
-          <button key={c} className={`filter-chip ${category === c ? 'active' : ''}`} onClick={() => setCategory(c)}>
+          <button key={c} className={`filter-chip ${category === c ? 'active' : ''}`}
+            onClick={() => { playClick('scan'); setCategory(c); }}>
             {c}
           </button>
         ))}
@@ -100,18 +98,11 @@ export default function IdeasView({ ideas, rankedIdeas, criteria, getOverallScor
             <div className="empty-desc">Try a different filter or add your first idea</div>
           </div>
         : <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {filtered.map((idea, i) => {
+            {filtered.map((idea) => {
               const rank = rankedIdeas.findIndex(r => r.id === idea.id) + 1;
               return (
-                <IdeaCard
-                  key={idea.id}
-                  idea={idea}
-                  rank={rank}
-                  criteria={criteria}
-                  score={getOverallScore(idea)}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                />
+                <IdeaCard key={idea.id} idea={idea} rank={rank} criteria={criteria}
+                  score={getOverallScore(idea)} onEdit={onEdit} onDelete={onDelete} />
               );
             })}
           </div>

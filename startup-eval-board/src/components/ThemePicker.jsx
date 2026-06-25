@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Palette, Check } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.jsx';
+import { useClickSound } from '../hooks/useClickSound.js';
 
 export default function ThemePicker() {
   const { theme, currentAlienId, setTheme, aliens } = useTheme();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  const playClick = useClickSound();
 
   useEffect(() => {
     function onClick(e) {
@@ -17,7 +19,7 @@ export default function ThemePicker() {
 
   return (
     <div className="theme-picker-wrap" ref={ref}>
-      <button className="theme-trigger" onClick={() => setOpen(o => !o)}>
+      <button className="theme-trigger" onClick={() => { playClick('tick'); setOpen(o => !o); }}>
         <span className="theme-swatch" />
         <Palette size={13} />
         <span>{theme.alienLabel}</span>
@@ -29,11 +31,8 @@ export default function ThemePicker() {
           {aliens.map(alien => {
             const isActive = alien.id === currentAlienId;
             return (
-              <div
-                key={alien.id}
-                className={`theme-option ${isActive ? 'active' : ''}`}
-                onClick={() => { setTheme(alien.id); setOpen(false); }}
-              >
+              <div key={alien.id} className={`theme-option ${isActive ? 'active' : ''}`}
+                onClick={() => { playClick('scan'); setTheme(alien.id); setOpen(false); }}>
                 <span className="theme-option-dot" style={{ background: alien.forms.base.vars['--accent'], boxShadow: `0 0 8px ${alien.forms.base.vars['--accent']}` }} />
                 <div className="theme-option-text">
                   <div className="theme-option-name">{alien.label}</div>

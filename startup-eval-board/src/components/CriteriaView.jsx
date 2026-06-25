@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Trash2, Check, Plus } from 'lucide-react';
 import { useThemeColors } from '../hooks/useThemeColors.js';
+import { useClickSound } from '../hooks/useClickSound.js';
 
 export default function CriteriaView({ criteria, addCriterion, updateCriterion, deleteCriterion }) {
   const colors = useThemeColors();
+  const playClick = useClickSound();
   const hues = [colors.accent, colors.accentSecondary, '#ffae00', '#ff3f3f', '#a855f7', colors.accentDim];
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({ name: '', weight: 20 });
@@ -38,20 +40,16 @@ export default function CriteriaView({ criteria, addCriterion, updateCriterion, 
               <div style={{ flex: 1, fontWeight: 600 }}>{c.name}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', color: 'var(--omni-text-dim)' }}>Weight</span>
-                <input
-                  type="number"
-                  min={1} max={100}
-                  value={c.weight}
+                <input type="number" min={1} max={100} value={c.weight}
                   onChange={e => updateCriterion(c.id, { weight: Math.max(1, Math.min(100, Number(e.target.value))) })}
                   style={{
                     width: 60, background: '#0a130a', border: '1px solid var(--omni-border)',
                     borderRadius: 4, color: 'var(--omni-green)', padding: '4px 8px',
                     fontFamily: 'var(--font-display)', fontSize: '0.82rem', textAlign: 'center'
-                  }}
-                />
+                  }} />
                 <span style={{ color: 'var(--omni-text-dim)', fontSize: '0.8rem' }}>%</span>
               </div>
-              <button className="btn btn-danger btn-sm" onClick={() => deleteCriterion(c.id)}><Trash2 size={13} /></button>
+              <button className="btn btn-danger btn-sm" onClick={() => { playClick('delete'); deleteCriterion(c.id); }}><Trash2 size={13} /></button>
             </div>
           ))}
         </div>
@@ -72,16 +70,16 @@ export default function CriteriaView({ criteria, addCriterion, updateCriterion, 
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
               <button className="btn btn-primary btn-sm" disabled={!form.name.trim()}
-                onClick={() => { addCriterion(form); setForm({ name: '', weight: 20 }); setAdding(false); }}>
+                onClick={() => { playClick('confirm'); addCriterion(form); setForm({ name: '', weight: 20 }); setAdding(false); }}>
                 <Check size={13} /> Add
               </button>
-              <button className="btn btn-ghost btn-sm" onClick={() => setAdding(false)}>Cancel</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => { playClick('tick'); setAdding(false); }}>Cancel</button>
             </div>
           </div>
         )}
 
         {!adding && (
-          <button className="btn btn-ghost" style={{ marginTop: 14 }} onClick={() => setAdding(true)}>
+          <button className="btn btn-ghost" style={{ marginTop: 14 }} onClick={() => { playClick('scan'); setAdding(true); }}>
             <Plus size={14} /> Add Criterion
           </button>
         )}
@@ -90,30 +88,24 @@ export default function CriteriaView({ criteria, addCriterion, updateCriterion, 
       <div className="card">
         <div className="card-title">Weight Distribution</div>
         <div style={{ display: 'flex', height: 24, borderRadius: 6, overflow: 'hidden', gap: 2 }}>
-          {criteria.map((c, i) => {
-            return (
-              <div key={c.id} style={{
-                flex: c.weight,
-                background: hues[i % hues.length],
-                opacity: 0.85,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '0.62rem', color: '#000', fontWeight: 700, fontFamily: 'var(--font-display)',
-                overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', padding: '0 4px'
-              }}>
-                {c.weight >= 10 ? `${c.weight}%` : ''}
-              </div>
-            );
-          })}
+          {criteria.map((c, i) => (
+            <div key={c.id} style={{
+              flex: c.weight, background: hues[i % hues.length], opacity: 0.85,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '0.62rem', color: '#000', fontWeight: 700, fontFamily: 'var(--font-display)',
+              overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', padding: '0 4px'
+            }}>
+              {c.weight >= 10 ? `${c.weight}%` : ''}
+            </div>
+          ))}
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
-          {criteria.map((c, i) => {
-            return (
-              <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.78rem', color: 'var(--omni-text-dim)' }}>
-                <span style={{ width: 10, height: 10, borderRadius: 2, background: hues[i % hues.length], display: 'inline-block' }} />
-                {c.name}
-              </div>
-            );
-          })}
+          {criteria.map((c, i) => (
+            <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.78rem', color: 'var(--omni-text-dim)' }}>
+              <span style={{ width: 10, height: 10, borderRadius: 2, background: hues[i % hues.length], display: 'inline-block' }} />
+              {c.name}
+            </div>
+          ))}
         </div>
       </div>
     </div>
