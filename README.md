@@ -1,7 +1,8 @@
-# Mini-Project-Assessment-Bootcamp-26
 # 🛸 Omnitrix Startup Eval Board
 
-A **Ben 10-themed** Startup Idea Evaluation Board — score, rank, compare, and SWOT-analyze your startup ideas. Switch between **8 alien-inspired themes**, complete with an Omnitrix-style transformation animation on every switch.
+A **Ben 10-themed** Startup Idea Evaluation Board — score, rank, compare, and SWOT-analyze your startup ideas. Switch between **8 alien-inspired themes**, each with its own **Ultimate form**, complete with an Omnitrix-style transformation animation and sound on every switch.
+
+**🔗 Live Demo:** [https://mohitgoel109.github.io/Mini-Project-Assessment-Bootcamp-26/](https://mohitgoel109.github.io/Mini-Project-Assessment-Bootcamp-26/)
 
 ---
 
@@ -14,7 +15,9 @@ A **Ben 10-themed** Startup Idea Evaluation Board — score, rank, compare, and 
 - 🏆 **Rankings** — auto-sorted leaderboard with trophy/medal icons, bar + line charts
 - ⚖️ **Compare** — side-by-side radar chart + score table for up to 4 ideas at once
 - 📈 **Dashboard** — analytics overview: averages, category breakdown, top-3 radar
-- 🎨 **8 Themes** — Ben 10 (default) + 7 alien-inspired palettes, with a transformation animation on switch
+- 🎨 **8 Alien Themes, each with a Base + Ultimate form** — pick an alien from the picker, then evolve it
+- 🔊 **Sound design** — Omnitrix-style UI click sounds, a TTS transformation shout, and looping background music
+- 💾 **Persistent storage** — ideas and criteria are saved to your browser's local storage, so they survive a refresh or closed tab
 - 📱 **App view** — responsive layout with a mobile bottom tab bar
 
 ---
@@ -23,10 +26,10 @@ A **Ben 10-themed** Startup Idea Evaluation Board — score, rank, compare, and 
 
 New ideas no longer start at a flat, tied "5" for every criterion. Instead, as you type the **name**, **description**, and pick a **category**, a lightweight keyword engine (`src/data/autoScore.js`) scans the text and pre-fills each criterion slider with a suggested score (1–10).
 
-- **How it works**: each criterion name is matched to a "dimension" (market, innovation, feasibility, revenue, competition, or a generic fallback) by looking for hint words in the criterion's own name (e.g. a criterion called "Market Fit" maps to the `market` dimension). The idea's combined text is then scanned for booster/dampener keywords for that dimension — e.g. *"AI"*, *"blockchain"*, *"novel"* push **Innovation** up; *"crowded"*, *"saturated"*, *"Amazon"* push **Competition** down.
+- **How it works**: each criterion name is matched to a "dimension" (market, innovation, feasibility, revenue, competition, or a generic fallback) by looking for hint words in the criterion's own name (e.g. a criterion called "Market Fit" maps to the `market` dimension). The idea's combined text is then scanned for booster/dampener keywords for that dimension — words associated with AI, novelty, or disruption push **Innovation** up; words associated with saturation or dominant incumbents push **Competition** down.
 - **Manual override**: drag any slider and it immediately switches from an `Auto` badge to a `Manual` badge — your manual value is never overwritten by future re-suggestions. A small reset icon next to a manually-set slider lets you snap it back to the auto-suggested value.
-- **Re-suggest button**: in the Scores tab, click **Suggest Scores from Text** to re-run the engine on the current name/description (useful after editing the description) — it only refreshes criteria still marked `Auto`, leaving your manual edits untouched.
-- **Rankings warning**: the Rankings page still flags any idea where *every* criterion is sitting at the neutral default (5) — now a much rarer, more meaningful signal since auto-suggestion handles most cases.
+- **Re-suggest button**: in the Scores tab, click **Suggest Scores from Text** to re-run the engine on the current name/description — it only refreshes criteria still marked `Auto`, leaving your manual edits untouched.
+- **Rankings warning**: the Rankings page still flags any idea where *every* criterion is sitting at the neutral default (5) — a rare, meaningful signal now that auto-suggestion handles most cases.
 
 This works against **any** custom criteria you define in the Criteria tab, not just the 5 defaults — criteria that don't match a known dimension fall back to a generic score based on description length and overall keyword density.
 
@@ -34,18 +37,34 @@ This works against **any** custom criteria you define in the Criteria tab, not j
 
 ## 🎨 Themes
 
-| Theme | Inspired by | Accent color |
-|---|---|---|
-| **Ben 10** *(default)* | Omnitrix | Green `#00ff41` |
-| Four Arms | Tetramand strength | Orange `#ff5a1f` |
-| XLR8 | Kineceleran speed | Blue `#1f9bff` |
-| Diamondhead | Petrosapien crystal | Teal `#00e0c8` |
-| Heatblast | Pyronite fire | Red-orange `#ff3300` |
-| Wildmutt | Vulpimancer instinct | Amber `#c9a227` |
-| Upgrade | Galvanic Mechamorph | Lime `#9bff00` |
-| Ghostfreak | Ectonurite shadow | Purple `#8c2bff` |
+Each alien has a **Base** form and an **Ultimate** form, 16 palettes total, every accent color spaced evenly around the color wheel so no two ever look alike.
 
-Switch themes from the **palette icon** in the top-right of the header. Each switch plays a short Omnitrix-dial transformation animation (spinning dial → flash → new theme reveal).
+| Alien | Inspired by |
+|---|---|
+| **Ben 10** *(default)* | Omnitrix |
+| Four Arms | Tetramand strength |
+| XLR8 | Kineceleran speed |
+| Diamondhead | Petrosapien crystal |
+| Heatblast | Pyronite fire |
+| Wildmutt | Vulpimancer instinct |
+| Way Big | To'kustar colossus |
+| Ghostfreak | Ectonurite shadow |
+
+**How to switch:**
+1. Click the **alien name button** in the top-right of the header to open the picker, then pick an alien — this applies its Base form
+2. Click the **Evolve** button next to it to flip the current alien to its **Ultimate** form (click again to revert)
+
+Every switch plays a short transformation animation (spinning dial → flash → new theme reveal) along with UI sound effects.
+
+---
+
+## 🔊 Sound Design
+
+All audio is generated in-browser via the Web Audio API and Web Speech API — no external audio files required for the core experience.
+
+- **UI click sounds** — four distinct synthesized tones depending on the action: a mechanical "tick" for navigation, an ascending "confirm" beep for primary actions (Add/Save), a descending "delete" warning for destructive actions, and a quick "scan" blip for selections/filters. See `src/hooks/useClickSound.js`.
+- **Transformation shout** — when you switch themes, the browser's built-in Text-to-Speech announces the alien's name, tuned for a punchier delivery (raised pitch, faster rate, layered echo, plus a synthesized sub-bass "boom"). See `src/hooks/useVoiceShout.js`.
+- **Background music** — an optional looping music track, toggled via the speaker icon in the header. See `src/hooks/useBackgroundMusic.js` (expects a file at `public/audio/bgm.mp3`).
 
 ---
 
@@ -56,6 +75,7 @@ Switch themes from the **palette icon** in the top-right of the header. Each swi
 - **Tremor** (`@tremor/react`) — optional alternate analytics dashboard (see below)
 - **Tailwind CSS** — required by Tremor
 - **lucide-react** — all icons are font/vector icons, not emoji
+- **Web Audio API + Web Speech API** — all sound effects, no audio library dependency
 - Pure CSS custom properties for theming (no CSS-in-JS)
 
 ---
@@ -67,6 +87,8 @@ npm install
 npm run dev
 ```
 Open the printed local URL (usually `http://localhost:5173`).
+
+> **Background music:** place an MP3 at `public/audio/bgm.mp3` (create the `audio` folder under `public/` if it doesn't exist) to enable the music toggle button.
 
 ---
 
@@ -96,12 +118,16 @@ Both dashboards read from the same `useStore()` data, so nothing else needs to c
 
 | What you want to change | File |
 |---|---|
-| Add/edit alien themes | `src/data/themes.js` |
+| Add/edit alien themes (Base + Ultimate palettes) | `src/data/themes.js` |
 | Theme transformation animation | `src/index.css` (search `THEME TRANSFORMATION`) + `src/components/TransformOverlay.jsx` |
+| Theme switching logic, Base/Ultimate state | `src/context/ThemeContext.jsx` |
+| UI click sounds | `src/hooks/useClickSound.js` |
+| Transformation voice shout | `src/hooks/useVoiceShout.js` |
+| Background music | `src/hooks/useBackgroundMusic.js` (+ `public/audio/bgm.mp3`) |
 | Auto-scoring keywords / dimensions | `src/data/autoScore.js` |
 | Default sample ideas | `src/data/initial.js` → `SAMPLE_IDEAS` |
 | Default criteria | `src/data/initial.js` → `DEFAULT_CRITERIA` |
-| Idea/criteria state logic, ranking math | `src/data/store.js` |
+| Idea/criteria state logic, ranking math, local storage persistence | `src/data/store.js` |
 | Add-idea / edit-idea form, auto-suggest wiring | `src/components/IdeaModal.jsx` |
 | Rankings page (icons, charts) | `src/components/RankingView.jsx` |
 | Mobile bottom nav | `src/App.jsx` (`<nav className="bottom-nav">`) + `.bottom-nav` CSS in `index.css` |
@@ -116,42 +142,23 @@ Open `src/data/autoScore.js`:
 ### Disabling auto-suggest entirely
 In `src/components/IdeaModal.jsx`, the `handleFieldChange` function is what triggers live re-suggestion while typing. Remove its `suggestScores(...)` block to fall back to flat default scores (the **Suggest Scores from Text** button can still be removed separately if you want pure manual entry).
 
-
 ---
 
 ## 🚀 Deploy to GitHub Pages
 
-### 1. Set your homepage in `package.json`
-```json
-"homepage": "https://<YOUR_GITHUB_USERNAME>.github.io/startup-eval-board",
-```
+This project is already live at **[mohitgoel109.github.io/Mini-Project-Assessment-Bootcamp-26](https://mohitgoel109.github.io/Mini-Project-Assessment-Bootcamp-26/)**. To redeploy after making changes:
 
-### 2. Confirm `vite.config.js` base matches your repo name
-```js
-base: '/startup-eval-board/',
-```
-
-### 3. Push to GitHub
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/<YOUR_USERNAME>/startup-eval-board.git
-git push -u origin main
-```
-
-### 4. Deploy
 ```bash
 npm run deploy
 ```
-This runs `npm run build` then publishes `dist/` to the `gh-pages` branch (via the `gh-pages` package, already in `devDependencies`).
+This runs `npm run build` then publishes `dist/` to the `gh-pages` branch (via the `gh-pages` package, already in `devDependencies`). Changes typically go live within 1–2 minutes.
 
-### 5. Enable GitHub Pages
-- Repo → **Settings** → **Pages**
-- Source: **Deploy from a branch**
-- Branch: **gh-pages** / `root`
-- Save → wait ~1–2 minutes → visit your live URL 🎉
+If setting this up fresh on a new repo:
+
+1. Set `homepage` in `package.json` to `https://<YOUR_GITHUB_USERNAME>.github.io/<YOUR_REPO_NAME>`
+2. Confirm `vite.config.js`'s `base` matches your repo name, e.g. `base: '/<YOUR_REPO_NAME>/'`
+3. Push to GitHub, then run `npm run deploy`
+4. In the repo: **Settings → Pages → Source: Deploy from a branch → Branch: gh-pages / root**
 
 ---
 
